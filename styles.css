@@ -1,0 +1,32 @@
+.translator-controls {
+  display: flex;
+  gap: 6px;
+  padding: 4px 6px;
+  background: #2b2b2b;
+  border-bottom: 1px solid #3a3a3a;
+  font-size: 12px;
+  align-items: center;
+}
+
+.translator-controls label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #bababa;
+}
+
+.translator-controls select {
+  background: #1a1a1a;
+  color: #ddd;
+  border: 1px solid #444;
+  border-radius: 3px;
+  padding: 1px 3px;
+  font-size: 11px;
+}
+
+.translator-warning {
+  padding: 4px 6px;
+  background: #3a2a00;
+  color: #f0c040;
+  font-size: 11px;
+}

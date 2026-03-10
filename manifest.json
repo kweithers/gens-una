@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Lichess Chat Translator",
+  "version": "1.0",
+  "description": "Translates incoming and outgoing Lichess chat messages using Chrome's built-in Translator API.",
+  "content_scripts": [
+    {
+      "matches": ["https://lichess.org/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
