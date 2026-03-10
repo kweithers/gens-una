@@ -41,6 +41,17 @@
     return { label, select };
   }
 
+  // --- Language detection ---
+
+  let detector = null;
+
+  async function getDetector() {
+    if (!detector) {
+      detector = await LanguageDetector.create();
+    }
+    return detector;
+  }
+
   // --- Incoming translation ---
 
   async function translateIncoming(li) {
@@ -49,7 +60,17 @@
     li.dataset.translated = '1';
     const original = tEl.textContent;
     try {
-      const translator = await getTranslator(theirLang, myLang);
+      const det = await getDetector();
+      const results = await det.detect(original);
+      const sourceLang = results[0]?.detectedLanguage;
+      if (!sourceLang || sourceLang === myLang) return;
+      if (sourceLang !== theirLang) {
+        theirLang = sourceLang;
+        const theirSelect = document.getElementById('translator-their-lang');
+        if (theirSelect) theirSelect.value = sourceLang;
+        clearCache();
+      }
+      const translator = await getTranslator(sourceLang, myLang);
       if (!translator) return;
       const translated = await translator.translate(original);
       tEl.textContent = translated;
@@ -119,10 +140,10 @@
     if (!chatOl) return;
 
     // Check API availability
-    if (!('Translator' in self)) {
+    if (!('Translator' in self) || !('LanguageDetector' in self)) {
       const warn = document.createElement('div');
       warn.className = 'translator-warning';
-      warn.textContent = 'Translator API unavailable. Requires Chrome 138+.';
+      warn.textContent = 'Translator/LanguageDetector API unavailable. Requires Chrome 138+.';
       chatOl.parentNode.insertBefore(warn, chatOl);
       return;
     }
