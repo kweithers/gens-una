@@ -7,7 +7,7 @@
   ];
 
   let myLang = 'en';
-  let theirLang = 'es';
+  let theirLang = 'auto';
   let enabled = true;
   const translatorCache = {};
 
@@ -26,11 +26,18 @@
     }
   }
 
-  function buildSelect(id, defaultVal, labelText) {
+  function buildSelect(id, defaultVal, labelText, { includeAuto = false } = {}) {
     const label = document.createElement('label');
     label.textContent = labelText + ' ';
     const select = document.createElement('select');
     select.id = id;
+    if (includeAuto) {
+      const opt = document.createElement('option');
+      opt.value = 'auto';
+      opt.textContent = 'Auto-detect';
+      if (defaultVal === 'auto') opt.selected = true;
+      select.appendChild(opt);
+    }
     for (const [code, name] of LANGUAGES) {
       const opt = document.createElement('option');
       opt.value = code;
@@ -66,7 +73,7 @@
       const results = await det.detect(original);
       const sourceLang = results[0]?.detectedLanguage;
       if (!sourceLang || sourceLang === myLang) return;
-      if (sourceLang !== theirLang) {
+      if (theirLang === 'auto') {
         theirLang = sourceLang;
         const theirSelect = document.getElementById('translator-their-lang');
         if (theirSelect) theirSelect.value = sourceLang;
@@ -117,7 +124,20 @@
       e.preventDefault();
 
       try {
-        const translator = await getTranslator(myLang, theirLang);
+        let targetLang = theirLang;
+        if (targetLang === 'auto') {
+          const chatOl = chatContainer.querySelector('ol.mchat__messages');
+          const lastOpponent = chatOl ? [...chatOl.querySelectorAll('li:not(.me)')].pop() : null;
+          const lastText = lastOpponent?.querySelector('t');
+          if (lastText) {
+            const det = await getDetector();
+            const results = await det.detect(lastText.title || lastText.textContent);
+            targetLang = results[0]?.detectedLanguage || 'es';
+          } else {
+            targetLang = 'es';
+          }
+        }
+        const translator = await getTranslator(myLang, targetLang);
         if (translator) {
           input.value = await translator.translate(input.value);
         }
@@ -156,7 +176,7 @@
     controls.className = 'translator-controls';
 
     const my = buildSelect('translator-my-lang', myLang, 'My:');
-    const their = buildSelect('translator-their-lang', theirLang, 'Theirs:');
+    const their = buildSelect('translator-their-lang', theirLang, 'Theirs:', { includeAuto: true });
 
     my.select.addEventListener('change', () => { myLang = my.select.value; clearCache(); });
     their.select.addEventListener('change', () => { theirLang = their.select.value; clearCache(); });
