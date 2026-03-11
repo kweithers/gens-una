@@ -8,6 +8,7 @@
 
   let myLang = 'en';
   let theirLang = 'es';
+  let enabled = true;
   const translatorCache = {};
 
   async function getTranslator(source, target) {
@@ -55,6 +56,7 @@
   // --- Incoming translation ---
 
   async function translateIncoming(li) {
+    if (!enabled) return;
     const tEl = li.querySelector('t');
     if (!tEl || li.dataset.translated) return;
     li.dataset.translated = '1';
@@ -107,7 +109,8 @@
 
     input.addEventListener('keydown', async (e) => {
       if (e.key !== 'Enter') return;
-      if (skipNext) { skipNext = false; return; } // let this one through to Lichess
+      if (skipNext) { skipNext = false; return; }
+      if (!enabled) return;
       if (!input.value.trim()) return;
 
       e.stopImmediatePropagation();
@@ -158,8 +161,27 @@
     my.select.addEventListener('change', () => { myLang = my.select.value; clearCache(); });
     their.select.addEventListener('change', () => { theirLang = their.select.value; clearCache(); });
 
-    controls.appendChild(my.label);
-    controls.appendChild(their.label);
+    const title = document.createElement('div');
+    title.className = 'translator-title';
+    title.textContent = 'Lichess Chat Translator';
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'translator-toggle';
+    toggleBtn.textContent = 'ON';
+    toggleBtn.addEventListener('click', () => {
+      enabled = !enabled;
+      toggleBtn.textContent = enabled ? 'ON' : 'OFF';
+      toggleBtn.classList.toggle('off', !enabled);
+    });
+
+    const row = document.createElement('div');
+    row.className = 'translator-row';
+    row.appendChild(my.label);
+    row.appendChild(their.label);
+    row.appendChild(toggleBtn);
+
+    controls.appendChild(title);
+    controls.appendChild(row);
     chatOl.parentNode.insertBefore(controls, chatOl);
 
     // Start observing

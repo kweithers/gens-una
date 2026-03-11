@@ -1,10 +1,23 @@
 .translator-controls {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
   padding: 4px 6px;
   background: #2b2b2b;
   border-bottom: 1px solid #3a3a3a;
   font-size: 12px;
+  align-items: center;
+}
+
+.translator-title {
+  color: #bababa;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.translator-row {
+  display: flex;
+  gap: 6px;
   align-items: center;
 }
 
@@ -22,6 +35,22 @@
   border-radius: 3px;
   padding: 1px 3px;
   font-size: 11px;
+}
+
+.translator-toggle {
+  margin-left: auto;
+  background: #4a7;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 1px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.translator-toggle.off {
+  background: #777;
 }
 
 .translator-warning {
