@@ -2,6 +2,8 @@
 
 A Chrome extension that translates incoming and outgoing chat messages during Lichess games using Chrome's built-in [Translator API](https://developer.chrome.com/docs/ai/translator-api).
 
+<img src="gens-una.gif" alt="Lichess Chat Translator demo" width="400">
+
 ## Requirements
 
 - Chrome 138+

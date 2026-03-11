@@ -37,3 +37,7 @@ Lichess Chat Translator — a Chrome extension (Manifest V3) that translates cha
 1. Load unpacked at `chrome://extensions`
 2. Open a Lichess game with chat
 3. After code changes: reload extension, then refresh the Lichess tab
+
+## Command to add opponent message to chat
+
+`document.querySelector('ol.mchat__messages').insertAdjacentHTML('beforeend', '<li><a>opponent</a><t>Bonne chance dans le jeu</t></li>');`
