@@ -53,6 +53,11 @@
   background: #777;
 }
 
+.translator-original {
+  font-style: italic;
+  opacity: 0.6;
+}
+
 .translator-warning {
   padding: 4px 6px;
   background: #3a2a00;

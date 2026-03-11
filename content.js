@@ -73,7 +73,7 @@
       const results = await det.detect(original);
       const sourceLang = results[0]?.detectedLanguage;
       if (!sourceLang || sourceLang === myLang) return;
-      if (theirLang === 'auto') {
+      if (theirLang !== sourceLang) {
         theirLang = sourceLang;
         const theirSelect = document.getElementById('translator-their-lang');
         if (theirSelect) theirSelect.value = sourceLang;
@@ -82,8 +82,11 @@
       const translator = await getTranslator(sourceLang, myLang);
       if (!translator) return;
       const translated = await translator.translate(original);
-      tEl.textContent = translated;
-      tEl.title = original;
+      tEl.textContent = original + ' ';
+      const trans = document.createElement('span');
+      trans.className = 'translator-original';
+      trans.textContent = `(${translated})`;
+      tEl.appendChild(trans);
     } catch (e) {
       console.error('[Lichess Translator] incoming error:', e);
     }
@@ -98,7 +101,20 @@
     const observer = new MutationObserver((mutations) => {
       for (const m of mutations) {
         for (const node of m.addedNodes) {
-          if (node.nodeType === 1 && node.tagName === 'LI' && !node.classList.contains('me')) {
+          if (node.nodeType !== 1 || node.tagName !== 'LI') continue;
+          if (node.classList.contains('me')) {
+            if (pendingOriginal) {
+              const tEl = node.querySelector('t');
+              if (tEl) {
+                tEl.textContent = tEl.textContent + ' ';
+                const orig = document.createElement('span');
+                orig.className = 'translator-original';
+                orig.textContent = `(${pendingOriginal})`;
+                tEl.appendChild(orig);
+              }
+              pendingOriginal = null;
+            }
+          } else {
             translateIncoming(node);
           }
         }
@@ -108,6 +124,8 @@
   }
 
   // --- Outgoing translation ---
+
+  let pendingOriginal = null;
 
   function setupOutgoing(chatContainer) {
     const input = chatContainer.querySelector('input.mchat__say') || chatContainer.querySelector('input[type="text"]');
@@ -122,6 +140,8 @@
 
       e.stopImmediatePropagation();
       e.preventDefault();
+
+      const originalText = input.value;
 
       try {
         let targetLang = theirLang;
@@ -140,6 +160,7 @@
         const translator = await getTranslator(myLang, targetLang);
         if (translator) {
           input.value = await translator.translate(input.value);
+          pendingOriginal = originalText;
         }
       } catch (err) {
         console.error('[Lichess Translator] outgoing error:', err);
