@@ -64,3 +64,9 @@
   color: #f0c040;
   font-size: 11px;
 }
+
+.translator-input-error {
+  font-size: 11px;
+  color: #f06060;
+  padding: 2px 4px;
+}

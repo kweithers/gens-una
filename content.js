@@ -127,6 +127,18 @@
 
   let pendingOriginal = null;
 
+  function showInputError(input, message) {
+    let err = input.parentNode.querySelector('.translator-input-error');
+    if (!err) {
+      err = document.createElement('div');
+      err.className = 'translator-input-error';
+      input.parentNode.appendChild(err);
+    }
+    err.textContent = message;
+    clearTimeout(err._timeout);
+    err._timeout = setTimeout(() => err.remove(), 3000);
+  }
+
   function setupOutgoing(chatContainer) {
     const input = chatContainer.querySelector('input.mchat__say') || chatContainer.querySelector('input[type="text"]');
     if (!input) return;
@@ -146,16 +158,9 @@
       try {
         let targetLang = theirLang;
         if (targetLang === 'auto') {
-          const chatOl = chatContainer.querySelector('ol.mchat__messages');
-          const lastOpponent = chatOl ? [...chatOl.querySelectorAll('li:not(.me)')].pop() : null;
-          const lastText = lastOpponent?.querySelector('t');
-          if (lastText) {
-            const det = await getDetector();
-            const results = await det.detect(lastText.title || lastText.textContent);
-            targetLang = results[0]?.detectedLanguage || 'es';
-          } else {
-            targetLang = 'es';
-          }
+          showInputError(input, 'Select opponent language first');
+          skipNext = false;
+          return;
         }
         const translator = await getTranslator(myLang, targetLang);
         if (translator) {
